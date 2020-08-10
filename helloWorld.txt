@@ -1,0 +1,2 @@
+str a, Hello World!
+out a
