@@ -75,8 +75,8 @@
 
 /* We need to keep keys and values. */
 struct Data{
-    char* type;
-    void* data;
+    char type[4];
+    unsigned char data[8];
 };
 
 struct hashmap_element {
@@ -193,15 +193,12 @@ extern "C" {
 #define HASHMAP_NULL 0
 #endif
 
-int hashmap_create(const unsigned initial_size,
-    struct hashmap* const out_hashmap) {
+int hashmap_create(const unsigned initial_size, struct hashmap* const out_hashmap) {
     if (0 != (initial_size & (initial_size - 1))) {
         return 1;
     }
 
-    out_hashmap->data =
-        HASHMAP_CAST(struct hashmap_element*,
-            calloc(initial_size, sizeof(struct hashmap_element)));
+    out_hashmap->data = HASHMAP_CAST(struct hashmap_element*, calloc(initial_size, sizeof(struct hashmap_element)));
     if (!out_hashmap->data) {
         return 1;
     }
@@ -224,7 +221,8 @@ int hashmap_put(struct hashmap* const m, const char* const key,
     }
 
     /* Set the data. */
-    m->data[index].data = value;
+    memcpy(m->data[index].data.type,value.type,4);
+    memcpy(m->data[index].data.data,value.data,8);
     m->data[index].key = key;
     m->data[index].key_len = len;
     m->data[index].in_use = 1;
@@ -252,7 +250,7 @@ struct Data hashmap_get(const struct hashmap* const m, const char* const key,
         curr = (curr + 1) % m->table_size;
     }
 
-    struct Data dataNull = {NULL,NULL};
+    struct Data dataNull = {"",""};
     /* Not found */
     return dataNull;
 }

@@ -13,13 +13,13 @@ struct hashNode* scopeStack = NULL;
 int main(int numArgs, char* args[]) {
     // Make sure only a fileName was given from command line
     if(numArgs < 2 || numArgs > 2){
-        printf("Invalid or no filename given.");
+        printf("Invalid or no filename given\n");
         return 1;
     }
 
     char* codeIn = readFile(args[1]);
     if(codeIn == NULL){
-        printf("Unable to read file: %s",args[1]);
+        printf("Unable to read file: %s\n",args[1]);
         return 1;
     }
 
@@ -34,7 +34,7 @@ char* readFile(char* fileName){
     // read in entire file
     fileData = fopen(fileName,"r");
     if(fileData == NULL){
-        printf("Unable to read file: %s.",fileName);
+        printf("Unable to read file: %s\n",fileName);
         return NULL;
     }
     fseek(fileData,0L,SEEK_END);  // Find the end of the file
@@ -43,7 +43,7 @@ char* readFile(char* fileName){
 
     char* codeIn = (char*)calloc(byteSize,CHAR_SIZE);
     if(codeIn == NULL){
-        printf("Unable to read file: %s",fileName);
+        printf("Unable to read file: %s\n",fileName);
         return NULL;
     }
 
@@ -90,16 +90,122 @@ int runCode(char* codeIn){
         printf("%s\n",command);
         printf("%s\n",params);
 
+        switch(*(int*)command){
+        case 7368041:
+            // imp (import)
+            break;
+        case 7561577:
+            //ias (import as)
+            break;
+        case 7632239:
+            // out (output)
+            break;
+        case 7368297:
+            // inp (input)
+            break;
+        case 6514035:
+            // sec (seconds)
+            break;
+        case 6579297:
+            // add (addition)
+            break;
+        case 6452595:
+            // sub (subtraction)
+            break;
+        case 7107949:
+            // mul (multiplication)
+            break;
+        case 7760228:
+            // div (division)
+            break;
+        case 7630441:{
+            // int (make int)
+            char* index = strchr(params,',');
+            char varName[index-params];
+            int value = atoi(index+1);
+            strncpy(varName, params,index-params);
+            struct Data var = {"int",value};
+            hashmap_put(&(*scopeStack).data, varName, strlen(varName), var);
+            struct Data const element = hashmap_get(&(*scopeStack).data, "c", strlen("c"));
+            printf("%s, %s\n\n",element.type,element.data);
+            break;
+        }case 7500915:
+            // str (make string)
+            break;
+        case 7103076:
+            // dbl (make double)
+            break;
+        case 7303010:
+            // boo (make boolean)
+            break;
+        case 7564393:
+            // ils (make int list)
+            break;
+        case 7564403:
+            // sls (make string list)
+            break;
+        case 7564388:
+            // dls (make double list)
+            break;
+        case 7564386:
+            // bls (make boolean list)
+            break;
+        case 7564406:
+            // vls (make variable list)
+            break;
+        case 7368560:
+            // pop (pop from list)
+            break;
+        case 7632240:
+            // put (push to list)
+            break;
+        case 7890025:
+            // idx (get element ad index)
+            break;
+        case 7234924:
+            // len (get length of list or string)
+            break;
+        case 7958627:
+            // cpy (copy data from one var to another)
+            break;
+        case 7103844:
+            // del (delete variable)
+            break;
+        case 7102838:
+            // val (check if variable available)
+            break;
+        case 7103858:
+            // rel (perform boolean operation)
+            break;
+        case 7500389:
+            // err (throw manual error)
+            break;
+        case 7171939:
+            // com (comment, do nothing)
+            break;
+        case 6711666:
+            // rif (run function if true)
+            break;
+        case 7239026:
+            // run (run function)
+            break;
+        default:
+            printf("Invalid command found on line %d: %s\n",lineNum,line);
+            return 1;
+        }
+
         // Move iterator to next line
         line=strtok(NULL,"\n");
     }// END WHILE
+    struct Data const element = hashmap_get(&(*scopeStack).data, "c", strlen("c"));
+    printf("\n%s, %d",element.type,*(int*)element.data);
     return 0;
 }// END FUNCTION runCode
 
 void mapExample(){
 
     char* text = "Hello !";
-    struct Data test = {"str",text};
+    struct Data test = {"str",*text};
 
     hashmap_put(&(*scopeStack).data, "greeting", strlen("greeting"), test);
 
